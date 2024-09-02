@@ -77,6 +77,64 @@ router.post("/sign_up", async (req, res) => {
   }
 });
 
+router.post("/google", async (req, res) => {
+  const { firstname, lastname, email, phone } = req.body;
+  try {
+    const existingUser = await User.findOne({ email }).select("-password");
+    if (existingUser) {
+      const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+      res
+        .cookie(access_token, token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        })
+        .status(202)
+        .json({
+          success: true,
+          message: "Login successful. Redirecting to Dashboard",
+          user: existingUser,
+        });
+    } else {
+      try {
+        const user = new User({
+          firstname,
+          lastname,
+          email,
+          phone,
+          googleAuth: true,
+          isVerified: true,
+          isProfessional: false,
+          lastLogin: Date().now(),
+        });
+        await user.save();
+        const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+        res
+        .cookie(access_token, token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        })
+        .status(202)
+        .json({
+          success: true,
+          message: "Login successful. Redirecting to Dashboard",
+          user,
+        });
+        
+        
+      } catch (error) {
+        throw new Error(error);
+      }
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+  
+})
+
 router.post("/verify_email", async (req, res) => {
   const { verificationCode } = req.body;
 
