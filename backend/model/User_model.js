@@ -2,8 +2,6 @@ import mongoose from "mongoose";
 
 const User_schema = new mongoose.Schema(
   {
-    firstname: String,
-    lastname: String,
     email: {
       type: String,
       required: true,
@@ -12,6 +10,43 @@ const User_schema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+    },
+    isProfessional: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    profession: {
+      type: String,
+      enum: ["landlord", "agent"],
+      required: function () {
+        return this.isProfessional;
+      },
+    },
+    firstname: {
+      type: String,
+      required: function () {
+        return this.isProfessional;
+      },
+    },
+    lastname: {
+      type: String,
+      required: function () {
+        return this.isProfessional;
+      },
+    },
+    zipCode: {
+      type: String,
+      required: function () {
+        return this.isProfessional;
+      },
+    },
+    phone: {
+      type: String,
+      required: function () {
+        return this.isProfessional;
+      },
+      match: /^[0-9]{11}$/,
     },
     lastLogin: {
       type: Date,
@@ -25,7 +60,9 @@ const User_schema = new mongoose.Schema(
     resetPasswordExpiresAt: Date,
     verificationToken: String,
     verificationTokenExpiresAt: Date,
-},{ timestamps: true });
+  },
+  { timestamps: true }
+);
 
 const User = mongoose.model("User", User_schema);
 export default User;

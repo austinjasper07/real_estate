@@ -16,14 +16,21 @@ const router = express.Router();
 
 
 router.post("/sign_up", async (req, res) => {
-  const { username, password, email, firstname, lastname } = req.body;
+  const {password, email, firstname, lastname, isProfessional, profession, zipCode, phone } = req.body;
 
   try {
-    if (!username || !password || !email || !firstname || !lastname) {
-      throw new Error("All fields are required");
+    if (isProfessional) {
+      if (!profession || !zipCode || !phone || !password || !email || !firstname || !lastname) {
+        throw new Error("All fields are required");
+      }
+    }
+    if (!isProfessional) {
+      if (!password || !email) {
+        throw new Error("All fields are required");
+      }
     }
 
-    const userAlreadyExists = (await User.findOne({ email })) || (await User.findOne({ username }));
+    const userAlreadyExists = (await User.findOne({ email }));
 
     if (userAlreadyExists) {
       throw new Error("User already exists");
@@ -36,7 +43,7 @@ router.post("/sign_up", async (req, res) => {
 
     // Sending Email verification using Mailtrap
     try {
-      await sendVerificationEmail(email, verificationToken, firstname);
+      await sendVerificationEmail(email, verificationToken);
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);
       throw new Error("Failed to send verification email. Please try again.");
@@ -44,11 +51,14 @@ router.post("/sign_up", async (req, res) => {
 
     // If email is sent successfully, proceed to save the user
     const user = new User({
-      username,
       password: hashed_password,
       email,
       firstname,
       lastname,
+      isProfessional,
+      profession,
+      zipCode,
+      phone,
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 1 * 60 * 60 * 1000, // Expires in 1 hour
     });
@@ -120,16 +130,14 @@ router.post("/verify_email", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { user_login, password } = req.body;
+  const { email, password } = req.body;
   try {
-    if (!user_login || !password) {
+    if (!email || !password) {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
     }
-    const user = await User.findOne({
-      $or: [{ email: user_login }, { username: user_login }],
-    });
+    const user = await User.findOne({email});
 
     if (!user) {
       return res
@@ -206,11 +214,14 @@ router.post("/forgot_password", async (req, res) => {
 
     if (user.isVerified) {
       
-      user.resetPasswordToken = crypto.randomBytes(20).toString('hex');
+      user.resetPasswordToken = crypto.randomBytes(32).toString('hex');
       user.resetPasswordExpiresAt = Date.now() + 1 * 60 * 60 * 1000;
       await user.save();
   
-      await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${user.resetPasswordToken}`);
+      await sendPasswordResetEmail(
+        user.email,
+        `${process.env.CLIENT_URL}/reset-password/${user.resetPasswordToken}`
+      );
     }else throw new Error("Email not verified");
     
     return res.status(200).json({
@@ -270,23 +281,6 @@ router.get("/check_auth", verifyToken, async (req, res) => {
   }
 })
 
-// router.get("/check_auth", (req, res) => {
-//   const token = req.cookies.access_token; // Read token from cookies
-//   if (!token) {
-//     return res
-//       .status(401)
-//       .json({ success: false, message: "Unauthorized - no token provided" });
-//   }
-
-//   try {
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//     res.status(200).json({ user: decoded.userId });
-//   } catch (error) {
-//     res.status(401).json({ message: "Invalid token" });
-//   }
-// });
-
-
 router.post("/resend_verifyCode", async (req, res) => {
   const { email } = req.body;
   try {
@@ -302,12 +296,9 @@ router.post("/resend_verifyCode", async (req, res) => {
       throw new Error("Failed to send verification email. Please try again.");
     }
     user.verificationToken = verificationCode;
-    user.verificationTokenExpiresAt = Date.now() + 20 * 60 * 1000, // Expires in 20 minutes
-
+    user.verificationTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000, // Expires in 1 hour
     await user.save();
-
-    console.log(user)
-  
+    
     res.status(200).json({ success: true, message: "Email verification code sent successfully" });
  
   } catch (error) {
