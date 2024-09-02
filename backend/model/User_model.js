@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const User_schema = new mongoose.Schema(
   {
+    googleAuth: {
+      type: Boolean,
+      default: false,
+    },
     email: {
       type: String,
       required: true,
@@ -9,7 +13,9 @@ const User_schema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return this.googleAuth;
+      },
     },
     isProfessional: {
       type: Boolean,
