@@ -44,6 +44,20 @@ export const login = createAsyncThunk("auth/login", async (formData) => {
     throw new Error(error.message);
   }
 });
+export const OAuth = createAsyncThunk("auth/OAuth", async (formData) => {
+  try {
+    const response = await fetch(`${API_URL}/OAuth`, fetchOptions(formData));
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.message);
+    }
+    console.log('Success:', result);
+    return result
+  }
+  catch (error) {
+    throw new Error(error.message);
+  }
+});
 
 export const logout = createAsyncThunk("auth/logout", async (_, { dispatch }) => {
   try {
@@ -145,11 +159,10 @@ const authSlice = createSlice({
     hideModal(state) {
       state.modal = false;
     },
-    resetStatus(state) {
+    reset(state) {
       state.status = "idle";
-    },
-    resetMessage(state) {
       state.message = null;
+      state.error = null;
     },
     resetAuth(state) {
       state.user = null;
@@ -182,6 +195,20 @@ const authSlice = createSlice({
         state.message = action.payload.message;
       })
       .addCase(login.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      // for OAuth request
+      .addCase(OAuth.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(OAuth.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+        state.message = action.payload.message;
+      })
+      .addCase(OAuth.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
@@ -259,5 +286,5 @@ const authSlice = createSlice({
   },
 });
 
-export const {resetStatus, resetMessage, resetAuth, showModal, hideModal} = authSlice.actions
+export const {reset, resetAuth, showModal, hideModal} = authSlice.actions
 export default authSlice.reducer;

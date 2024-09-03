@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const User_schema = new mongoose.Schema(
   {
-    googleAuth: {
+    OAuth: {
       type: Boolean,
       default: false,
     },

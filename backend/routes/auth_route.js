@@ -77,14 +77,14 @@ router.post("/sign_up", async (req, res) => {
   }
 });
 
-router.post("/google", async (req, res) => {
-  const { firstname, lastname, email, phone } = req.body;
+router.post("/OAuth", async (req, res) => {
+  const { firstname, lastname, email, phone, isVerified } = req.body;
   try {
     const existingUser = await User.findOne({ email }).select("-password");
     if (existingUser) {
       const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
       res
-        .cookie(access_token, token, {
+        .cookie("access_token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
@@ -103,15 +103,16 @@ router.post("/google", async (req, res) => {
           lastname,
           email,
           phone,
-          googleAuth: true,
-          isVerified: true,
+          OAuth: true,
+          isVerified,
           isProfessional: false,
-          lastLogin: Date().now(),
+          lastLogin: Date.now(),
         });
         await user.save();
-        const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+        await sendWelcomeEmail(user.email, user.firstname);
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
         res
-        .cookie(access_token, token, {
+        .cookie("access_token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
@@ -120,7 +121,7 @@ router.post("/google", async (req, res) => {
         .status(202)
         .json({
           success: true,
-          message: "Login successful. Redirecting to Dashboard",
+          message: "Registration successful. Redirecting to Dashboard",
           user,
         });
         
@@ -130,6 +131,7 @@ router.post("/google", async (req, res) => {
       }
     }
   } catch (error) {
+    console.log(error)
     res.status(500).json({ success: false, message: error.message });
   }
   
@@ -209,7 +211,7 @@ router.post("/login", async (req, res) => {
         .json({ success: false, message: "User not verified" });
     }
 
-    const isMatch = await bcryptjs.compare(password, user.password);
+    const isMatch = bcryptjs.compare(password, user.password);
 
     if (!isMatch) {
       return res

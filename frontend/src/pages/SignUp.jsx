@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, replace } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Input, { PasswordInput } from "../components/Input";
 import { Mail, Eye, EyeOffIcon, Lock, Loader, IdCard } from "lucide-react";
 import toast from "react-hot-toast";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
-import { signup, resetStatus, resetMessage, hideModal } from "../features/authSlice";
-import { FaFacebook } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+import { signup, reset, hideModal } from "../features/authSlice";
+import { GoogleAuth, FacebookAuth } from "../components/Oauth";
 
 export default function SignUp() {
   const [isProfessional, setIsProfessional] = useState(false);
@@ -36,6 +35,7 @@ export default function SignUp() {
 
   function onSubmitHandler(e) {
     e.preventDefault();
+    dispatch(reset());
     console.log("Form data: ", formData)
     try {
       if (formData.isProfessional) {
@@ -53,8 +53,9 @@ export default function SignUp() {
         
       } else {
         if (!formData.email || !formData.password) throw new Error("All fields are required");
-        console.log(`Regular User: ${formData}`)
-        dispatch(signup(formData));
+        console.log(`Regular User: ${formData}`);
+        const data = {email: formData.email, password: formData.password}
+        dispatch(signup(data));
       }
     } catch (error) {
       console.log(`This is my error ${error.message}`);
@@ -66,10 +67,9 @@ export default function SignUp() {
     if (status === "succeeded") {
       toast.success(message);
       setTimeout(() => {
-        dispatch(resetStatus());
-        dispatch(resetMessage());
-        dispatch(hideModal);
-        navigate("/verify_email");
+        dispatch(reset());
+        dispatch(hideModal());
+        navigate("/verify_email", {replace: true});
       }, 1000);
     }
 
@@ -85,9 +85,13 @@ export default function SignUp() {
         zipCode: "",
         phone: "",
       });
+      setTimeout(() => {
+        dispatch(reset());
+      }, 500);
     }
 
     return () => {
+      dispatch(reset());
       setFormData({
         email: "",
         password: "",
@@ -269,14 +273,8 @@ export default function SignUp() {
           </span>
         </div>
 
-        <button className="w-full py-2 border border-slate-300 rounded-md mb-2 hover:bg-zinc-100 transition-colors relative">
-          <FcGoogle className="size-6 absolute ml-4" />
-          <div className="text-center">Continue with Google</div>
-        </button>
-        <button className="w-full py-2 border border-slate-300 rounded-md hover:bg-zinc-100 transition-colors relative">
-          <FaFacebook className="text-blue-700 size-6 absolute ml-4" />
-          <span>Continue with Facebook</span>
-        </button>
+      <GoogleAuth />
+      <FacebookAuth />
     </div>
   );
 }
