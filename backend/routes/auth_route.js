@@ -109,7 +109,7 @@ router.post("/OAuth", async (req, res) => {
           lastLogin: Date.now(),
         });
         await user.save();
-        await sendWelcomeEmail(user.email, user.firstname);
+        await sendWelcomeEmail(email, firstname);
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
         res
         .cookie("access_token", token, {
@@ -204,7 +204,11 @@ router.post("/login", async (req, res) => {
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-
+    if (!user.password && user.OAuth) {
+      return res
+      .status(401)
+      .json({ success: false, message: "You previously signed up with a social account" });
+    }
     if (!user.isVerified) {
       return res
         .status(403)

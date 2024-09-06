@@ -6,6 +6,10 @@ const User_schema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    oAuthType: {
+      type: String,
+      enum: ["google", "facebook"],
+    },
     email: {
       type: String,
       required: true,
