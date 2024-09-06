@@ -1,15 +1,15 @@
 import { useSelector } from "react-redux";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
 
 // export function PrivateRoute({ children }) {
-//     const { user, isAuthenticated, isCheckingAuth } = useSelector((state) => state.user);
+//     const { auth;, isAuthenticated, isCheckingAuth } = useSelector((state) => state.auth;);
 
 //     if (isCheckingAuth) {
 //     return <div><LucideLoader className="animate-spin mx-auto" /></div>;
 //     }
-    
-//     if (!user?.isVerified) {
+
+//     if (!auth;?.isVerified) {
 //       return <Navigate to="/verify_email" replace />;
 //     }
 
@@ -20,41 +20,29 @@ import Dashboard from "../pages/Dashboard";
 //   return children;
 // };
 
-
-
 export function PrivateRoute() {
-    const { isAuthenticated, isCheckingAuth } = useSelector((state) => state.user);
+  const { isAuthenticated, isCheckingAuth } = useSelector((state) => state.auth);
 
-    if (isCheckingAuth) {
-     return (
-       <div className="min-h-screen flex justify-center items-center">
-         <LucideLoader className="animate-spin" />
-       </div>
-     );
-    }
-
-    if (!isAuthenticated) {
-      return <Navigate to="/login" replace />;
-    }
-  
-    return <Outlet />;
-};
-
-
-export function Redirect({children}) {
-    const {isAuthenticated, isCheckingAuth } = useSelector((state) => state.user);
-    
-    if (isCheckingAuth) {
-      return (
-        <div className="min-h-screen flex justify-center items-center">
-          <LucideLoader className="animate-spin" />
-        </div>
-      );
-    }
-
-  if (isAuthenticated) {
-    return <Navigate to={"/"} replace />;
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <LucideLoader className="animate-spin" />
+      </div>
+    );
   }
-  return children;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+}
 
+export function Redirect() {
+  const navigate = useNavigate();
+  const { isAuthenticated, isCheckingAuth } = useSelector((state) => state.auth);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <LucideLoader className="animate-spin" />
+      </div>
+    );
+  }
+  return isAuthenticated ? navigate('/', {replace: true}) : <Outlet />
 }
