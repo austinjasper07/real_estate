@@ -1,7 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import authRoutes from "./routes/auth_route.js"
+import authRoutes from "./routes/auth_route.js";
+import userRoutes from "./routes/user_route.js"
 import cookieParser from 'cookie-parser';
 import cors from "cors";
 
@@ -28,6 +29,7 @@ app.options('*', cors());
 // app.use(cors()) // Allow all origin
 
 app.use("/api/auth", authRoutes);
+app.use('/api/user', userRoutes);
 
 
 // MongoDB Connection

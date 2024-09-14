@@ -59,13 +59,13 @@ export const OAuth = createAsyncThunk("auth/OAuth", async (formData) => {
   }
 });
 
-export const logout = createAsyncThunk("auth/logout", async (_, { dispatch }) => {
+export const logout = createAsyncThunk("auth/logout", async () => {
   try {
     // Make a request to clear the token from the server
     const response = await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
     
     // Clear the local state
-    dispatch(resetAuth());
+    // dispatch(resetAuth());
 
     return response.data
     
@@ -111,8 +111,7 @@ export const forgotPassword = createAsyncThunk(
   }
 );
 
-export const resend_verifyCode = createAsyncThunk(
-  "auth/resend_verifyCode",
+export const resend_verifyCode = createAsyncThunk("auth/resend_verifyCode",
   async (formData) => {
     try {
       const response = await fetch(
@@ -133,13 +132,24 @@ export const resend_verifyCode = createAsyncThunk(
 
 export const check_auth = createAsyncThunk("auth/check_auth", async () => {
   try {
-    const response = await axios.get(`${API_URL}/check_auth`, {withCredentials: true});
+    const response = await axios.get(`${API_URL}/check_auth`, { withCredentials: true });
     return response.data;
   } catch (error) {
     throw new Error(error);
   }
   
-})
+});
+
+export const updateProfile = createAsyncThunk("auth/updateProfile", async (formData) => {
+  try {
+    const response = await fetch("http://localhost:3000/api/user/update", fetchOptions(formData));
+    const responseData = await response.json();
+    if (!responseData.success) throw new Error(responseData.message);
+    return responseData;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+});
 
 const authSlice = createSlice({
   name: "auth",
@@ -219,7 +229,7 @@ const authSlice = createSlice({
       })
       .addCase(logout.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = null;
+        // state.user = null;
         state.isAuthenticated = false;
         state.message = action.payload.message;
       })
@@ -282,6 +292,20 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
         state.isCheckingAuth = false;
+      })
+      // For updating User Profile
+      .addCase(updateProfile.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+        state.message = action.payload.message;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
   },
 });

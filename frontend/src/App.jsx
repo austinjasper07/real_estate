@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { LucideLoader } from "lucide-react";
 import Dropdown from "./components/test";
-import ProfileMenu from "./components/ProfileMenu";
+import Profile from "./components/Profile";
 import { PrivateRoute, Redirect } from "./components/RoutingUsers";
 
 export default function App() {
@@ -49,7 +49,7 @@ export default function App() {
 
         {/* Protected Routes */}
         <Route element={<PrivateRoute />}>
-          <Route path="/profile" element={<ProfileMenu />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
 
         {/* Redirecting Authenticated users */}
@@ -60,7 +60,7 @@ export default function App() {
         </Route>
       </Routes>
       <Toaster />
-      <Footer />
+      {/* <Footer /> */}
     </main>
   );
 }

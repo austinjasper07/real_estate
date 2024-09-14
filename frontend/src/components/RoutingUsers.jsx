@@ -1,27 +1,12 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
+import { showModal } from "../features/authSlice";
 
-// export function PrivateRoute({ children }) {
-//     const { auth;, isAuthenticated, isCheckingAuth } = useSelector((state) => state.auth;);
-
-//     if (isCheckingAuth) {
-//     return <div><LucideLoader className="animate-spin mx-auto" /></div>;
-//     }
-
-//     if (!auth;?.isVerified) {
-//       return <Navigate to="/verify_email" replace />;
-//     }
-
-//     if (!isAuthenticated) {
-//       return <Navigate to="/sign_in" replace />;
-//     }
-
-//   return children;
-// };
 
 export function PrivateRoute() {
   const { isAuthenticated, isCheckingAuth } = useSelector((state) => state.auth);
+  const dispatch = useDispatch()
 
   if (isCheckingAuth) {
     return (
@@ -30,7 +15,13 @@ export function PrivateRoute() {
       </div>
     );
   }
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+
+  if (!isAuthenticated) {
+    dispatch(showModal());
+    return <Navigate to="/" replace />
+  }
+
+  return <Outlet />
 }
 
 export function Redirect() {
@@ -44,5 +35,5 @@ export function Redirect() {
       </div>
     );
   }
-  return isAuthenticated ? navigate('/', {replace: true}) : <Outlet />
+  return isAuthenticated ? navigate('/profile', { replace: true }) : <Outlet />;
 }

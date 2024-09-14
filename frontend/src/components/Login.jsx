@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login, reset, hideModal } from "../features/authSlice";
-import Input, { PasswordInput } from "../components/Input";
+import Input, { PasswordInput } from "./Input";
 import { Mail, Eye, EyeOffIcon, Lock, Loader2 } from "lucide-react";
-import { GoogleAuth, FacebookAuth } from "../components/Oauth";
+import { GoogleAuth, FacebookAuth } from "./Oauth";
 import toast from "react-hot-toast";
 
 const Login = () => {
@@ -60,7 +60,7 @@ const Login = () => {
 
   return (
     <div>
-      <div className= {modal ? "w-[90%] mx-auto" : "w-[70%] mx-auto" }>
+      <div className={modal ? "w-[90%] mx-auto" : "w-[70%] mx-auto"}>
         <form onSubmit={onSubmitHandler} className="">
           <div className="mb-4">
             <label

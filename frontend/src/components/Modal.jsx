@@ -1,12 +1,10 @@
 import { useState } from "react";
-import Login from "../pages/Login"
+import Login from "./Login"
 import SignUp from "../pages/SignUp";
 import { IoIosClose } from "react-icons/io";
 import { motion, AnimatePresence } from 'framer-motion'
 import { hideModal } from "../features/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-
-
 
 export default function Modal() {
   const [activeTab, setActiveTab] = useState("sign-in");
@@ -27,14 +25,13 @@ export default function Modal() {
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1, transition: { duration: 0.3 } }}
-            exit={{ scale: 0}}
-            id="modalContainer"
+            exit={{ scale: 0 }}
+            transition={{duration: 0.3}}
             className="bg-white px-6 pb-8 sm:rounded-3xl shadow-lg w-full h-full sm:w-[29rem] sm:h-[95%] overflow-y-auto"
           >
-            <motion.div className="mb-3 sticky top-0 z-50 bg-white px-4 pt-10 pb-6">
+            <div className="mb-3 sticky top-0 z-50 bg-white px-4 pt-10 pb-6">
               <button
                 className="absolute -right-1 top-5 border rounded-full hover:bg-gray-200 hover:scale-75 transition-transform"
-                id="modalCloseBtn"
                 onClick={()=>dispatch(hideModal())}
               >
                 <IoIosClose className="size-7 text-slate-400" />
@@ -42,7 +39,7 @@ export default function Modal() {
               <h2 className="text-2xl font-bold text-center">
                 Welcome to CrystalEstate
               </h2>
-            </motion.div>
+            </div>
             <div className="flex justify-start mb-4 border-b-2 border-b-gray-300">
               <button
                 onClick={() => setActiveTab("sign-in")}
@@ -52,7 +49,7 @@ export default function Modal() {
                     : "text-gray-500"
                 }`}
               >
-                Sign in
+                Login
               </button>
               <button
                 onClick={() => setActiveTab("new-account")}

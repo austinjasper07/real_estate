@@ -45,7 +45,6 @@ router.post("/sign_up", async (req, res) => {
     try {
       await sendVerificationEmail(email, verificationToken);
     } catch (emailError) {
-      console.error("Failed to send verification email:", emailError);
       throw new Error("Failed to send verification email. Please try again.");
     }
 
@@ -71,18 +70,18 @@ router.post("/sign_up", async (req, res) => {
         "User created successfully. Check your email for the verification code",
     });
   } catch (error) {
-    console.error("Sign-up error:", error);
-
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
 router.post("/OAuth", async (req, res) => {
-  const { firstname, lastname, email, phone, isVerified } = req.body;
+  const { firstname, lastname, email, phone, isVerified, imageUrl } = req.body;
   try {
     const existingUser = await User.findOne({ email }).select("-password");
     if (existingUser) {
       const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+      existingUser.lastLogin = Date.now();
+      await existingUser.save()
       res
         .cookie("access_token", token, {
           httpOnly: true,
@@ -105,12 +104,14 @@ router.post("/OAuth", async (req, res) => {
           phone,
           OAuth: true,
           isVerified,
+          imageUrl,
           isProfessional: false,
           lastLogin: Date.now(),
         });
         await user.save();
-        await sendWelcomeEmail(email, firstname);
+        // await sendWelcomeEmail(email, firstname);
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+        console.log(user)
         res
         .cookie("access_token", token, {
           httpOnly: true,
@@ -131,7 +132,6 @@ router.post("/OAuth", async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error)
     res.status(500).json({ success: false, message: error.message });
   }
   
@@ -184,7 +184,6 @@ router.post("/verify_email", async (req, res) => {
     await sendWelcomeEmail(user.email, user.firstname); // sending welcome email
 
   } catch (error) {
-    console.log(error.message)
     res.status(400).json({ success: false, message: error.message });
   }
 });
@@ -197,7 +196,8 @@ router.post("/login", async (req, res) => {
         .status(400)
         .json({ success: false, message: "All fields are required" });
     }
-    const user = await User.findOne({email});
+    const user = await User.findOne({ email });
+    console.log(user)
 
     if (!user) {
       return res
@@ -250,7 +250,6 @@ router.post("/login", async (req, res) => {
       });
 
   } catch (error) {
-    console.log(error)
     return res
       .status(500)
       .json({ success: false, message: "An error occurred during login" });
