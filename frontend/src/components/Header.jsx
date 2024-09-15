@@ -148,10 +148,13 @@ const Header = () => {
 
                   <hr className="border-b-0 my-1" />
                   <Link
-                    to={"/profile"}
+                    to={"/dashboard"}
                     className="block px-2 py-1 text-sm text-gray-700 hover:bg-gray-100"
                   >
-                    Profile
+                    {
+                      isAuthenticated &&  "Dashboard"
+                    }
+                    
                   </Link>
                   <a
                     href="#"
@@ -248,7 +251,7 @@ const Header = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            className="bg-white lg:hidden space-y-4 px-6 sm:rounded-3xl shadow-lg w-full h-screen overflow-y-auto fixed top-0 "
+            className="bg-white lg:hidden space-y-4 px-6 shadow-lg w-full h-screen overflow-y-auto fixed top-0 "
             initial={{ opacity: 0, translateY: -40 }}
             animate={{ opacity: 1, translateY: 0 }}
             exit={{ opacity: 0, translateY: -40 }}

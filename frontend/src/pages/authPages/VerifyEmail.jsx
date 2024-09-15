@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { verifyEmail, reset } from "../features/authSlice";
+import { verifyEmail, reset } from "../../features/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Loader } from "lucide-react";
 import toast from "react-hot-toast";

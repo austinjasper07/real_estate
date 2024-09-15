@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useUploadFile } from "../assests/uploadFile";
-import { updateProfile, reset } from "../features/authSlice";
 import {Loader2} from "lucide-react"
 import toast from "react-hot-toast";
+import { useUploadFile } from "../../config/uploadFile";
+import { updateProfile, reset } from "../../features/authSlice";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -37,8 +37,6 @@ const Profile = () => {
   useEffect(() => {
     if (update) {
       dispatch(updateProfile(userData));
-      console.log("Profile update dispatched");
-      // dispatch(resetAuth()); // Reset auth state if necessary
       setUpdate(false);
     }
   }, [update, dispatch, userData]);

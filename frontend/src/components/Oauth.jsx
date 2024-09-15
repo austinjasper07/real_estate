@@ -1,7 +1,7 @@
 import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-import { app } from "../assests/firebase.js";
+import { app } from "../config/firebase.js";
 import { toast } from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";

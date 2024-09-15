@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login, reset, hideModal } from "../features/authSlice";
-import Input, { PasswordInput } from "./Input";
+import Input, { PasswordInput } from "../components/Input";
 import { Mail, Eye, EyeOffIcon, Lock, Loader2 } from "lucide-react";
 import { GoogleAuth, FacebookAuth } from "./Oauth";
 import toast from "react-hot-toast";

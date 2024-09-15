@@ -1,38 +1,36 @@
-
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { Mail, Loader } from 'lucide-react'
 
-import { resend_verifyCode } from "../features/userSlice";
-import Input from "../components/input";
+import { forgotPassword } from "../../features/authSlice";
+import Input from "../../components/input";
 
 
-export default function ResendVerificationCode() {
+export default function ForgotPassword() {
   const dispatch = useDispatch();
-  const resendVerifyCodeState = useSelector((state) => state.user);
+  const forgotPasswordState = useSelector((state) => state.user);
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    if (resendVerifyCodeState.status === "succeeded") {
+    if (forgotPasswordState.status === "succeeded") {
       toast.success("Email sent successfully");
-      setEmail('')
-    }else if (resendVerifyCodeState.status === "failed") {
-      console.log(resendVerifyCodeState.error);
-      setErrorMessage(resendVerifyCodeState.error);
+    }else if (forgotPasswordState.status === "failed") {
+      console.log(forgotPasswordState.error);
+      setErrorMessage(forgotPasswordState.error);
       setEmail("");
     }
     setTimeout(() => {
       setErrorMessage("");
     }, 5000);
   }, [
-    resendVerifyCodeState.status,
-    resendVerifyCodeState.error,
-    resendVerifyCodeState.message,
+    forgotPasswordState.status,
+    forgotPasswordState.error,
+    forgotPasswordState.message,
     navigate,
   ]);
 
@@ -41,7 +39,7 @@ export default function ResendVerificationCode() {
     try {
       if (!email) throw new Error("Field required!");
 
-      dispatch(resend_verifyCode({ email }));
+      dispatch(forgotPassword({ email }));
     } catch (error) {
       setErrorMessage(error.message);
     }
@@ -51,7 +49,7 @@ export default function ResendVerificationCode() {
     <div className="min-h-screen bg-[#F5F5DC] py-16 flex flex-col justify-center items-center">
       <div className="flex flex-col items-center justify-center bg-white p-8 rounded-lg shadow-lg w-[70%] sm:w-[65%] md:w-[45%] lg:w-[35%]">
         <h1 className="text-2xl font-bold text-[#228B22] mb-6">
-          Resend Verification Code
+          Forgot Password
         </h1>
 
         <form
@@ -69,14 +67,14 @@ export default function ResendVerificationCode() {
 
           <button
             type="submit"
-            disabled={resendVerifyCodeState.status === "loading"}
+            disabled={forgotPasswordState.status === "loading"}
             className={`w-full p-3 ${
-              resendVerifyCodeState.status === "loading"
+              forgotPasswordState.status === "loading"
                 ? " bg-[#639463] text-white rounded-md cursor-not-allowed"
                 : "w-full p-3 bg-[#228B22] text-white rounded-md hover:bg-[#1E7A1E] transition"
             }`}
           >
-            {resendVerifyCodeState.status === "loading" ? (
+            {forgotPasswordState.status === "loading" ? (
               <Loader className="animate-spin mx-auto" />
             ) : (
               "Send Reset Email"

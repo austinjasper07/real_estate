@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
-import Dashboard from "../pages/Dashboard";
+import Dashboard from "../pages/userPages/Dashboard"
 import { showModal } from "../features/authSlice";
 
 

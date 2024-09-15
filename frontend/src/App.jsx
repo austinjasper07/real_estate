@@ -1,20 +1,21 @@
 import { Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import HomePage from "./pages/HomePage";
-import SignUp from "./pages/SignUp";
-import Login from "./pages/Login";
-import About from "./pages/About";
-import NotFoundPage from "./pages/NotFoundPage";
-import Modal from "./components/Modal";
 import { Toaster } from "react-hot-toast";
-import VerifyEmail from "./pages/VerifyEmail";
-import { check_auth } from "./features/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { LucideLoader } from "lucide-react";
-import Dropdown from "./components/test";
-import Profile from "./components/Profile";
+
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
+import About from "./pages/About";
+import NotFoundPage from "./pages/NotFoundPage";
+import SignUp from "./pages/authPages/SignUp";
+import Login from "./pages/authPages/Login";
+import VerifyEmail from "./pages/authPages/VerifyEmail";
+import Profile from "./pages/userPages/Profile";
+import CreateListing from "./pages/propertyPages/CreateListing";
+
+import { check_auth } from "./features/authSlice";
 import { PrivateRoute, Redirect } from "./components/RoutingUsers";
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFoundPage />} />
+        <Route path="/create-listing" element={<CreateListing/>}/>
 
         {/* Protected Routes */}
         <Route element={<PrivateRoute />}>
@@ -60,7 +62,7 @@ export default function App() {
         </Route>
       </Routes>
       <Toaster />
-      {/* <Footer /> */}
+      <Footer />
     </main>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Login from "./Login"
-import SignUp from "../pages/SignUp";
+import Login from "../pages/authPages/Login"
+import SignUp from "../pages/authPages/SignUp";
 import { IoIosClose } from "react-icons/io";
 import { motion, AnimatePresence } from 'framer-motion'
 import { hideModal } from "../features/authSlice";

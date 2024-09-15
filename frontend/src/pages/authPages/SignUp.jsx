@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, replace } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import Input, { PasswordInput } from "../components/Input";
 import { Mail, Eye, EyeOffIcon, Lock, Loader, IdCard } from "lucide-react";
 import toast from "react-hot-toast";
-import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
-import { signup, reset, hideModal } from "../features/authSlice";
-import { GoogleAuth, FacebookAuth } from "../components/Oauth";
+import Input, { PasswordInput } from "../../components/Input";
+import PasswordStrengthMeter from "../../components/PasswordStrengthMeter";
+import { signup, reset, hideModal } from "../../features/authSlice";
+import { GoogleAuth, FacebookAuth } from "../../components/Oauth";
 
 export default function SignUp() {
   const [isProfessional, setIsProfessional] = useState(false);

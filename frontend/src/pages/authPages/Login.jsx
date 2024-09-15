@@ -2,11 +2,12 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login, reset, hideModal } from "../features/authSlice";
-import Input, { PasswordInput } from "../components/Input";
-import { Mail, Eye, EyeOffIcon, Lock, Loader2 } from "lucide-react";
-import { GoogleAuth, FacebookAuth } from "../components/Oauth";
 import toast from "react-hot-toast";
+import { Mail, Eye, EyeOffIcon, Lock, Loader2 } from "lucide-react";
+
+import { login, reset, hideModal } from "../../features/authSlice";
+import Input, { PasswordInput } from "../../components/Input";
+import { GoogleAuth, FacebookAuth } from "../../components/Oauth";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
