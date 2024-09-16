@@ -23,12 +23,10 @@ export default function App() {
   const { isCheckingAuth, isAuthenticated, user } = useSelector(
     (state) => state.auth
   );
-  console.log("User before Check-auth: ", user);
 
   // Checking for authentication when the app loads, persists the authenticated user's data on Redux
   useEffect(() => {
     dispatch(check_auth());
-    console.log("User in check_auth", user);
   }, [dispatch]);
 
   // If authentication is still being checked, show a loading indicator
