@@ -1,10 +1,14 @@
 import { useRef, useState, useEffect } from "react";
 import { LoaderIcon, toast } from "react-hot-toast";
 import { getStorage, ref, deleteObject } from "firebase/storage";
+import { useDispatch } from "react-redux";
 import { useUploadFile } from "../../config/uploadFile";
+import { createListing, reset } from "../../features/listingSlice";
+
 
 export default function CreateListing() {
   const storage = getStorage(); // Get the Firebase storage instance
+  const dispatch = useDispatch();
   const inputRef = useRef(null);
   const [files, setFiles] = useState([]);
   const [imageUrls, setImageUrls] = useState([]);
@@ -21,7 +25,7 @@ export default function CreateListing() {
     bedroom: 0,
     bathroom: 0,
     parking: false, // Initial state for checkboxes as boolean
-    offer: false,
+    isOffer: false,
     type: "", // Updated to handle radio button selection
     furnished: false,
   });
@@ -94,6 +98,7 @@ export default function CreateListing() {
   // Handle form submission
   function handleSubmit(e) {
     e.preventDefault();
+    dispatch(createListing(propertyData));
     console.log("Updated propertyData:", propertyData);
   }
 
@@ -167,8 +172,8 @@ export default function CreateListing() {
                 type="radio"
                 name="type"
                 id="sell"
-                value="Sell"
-                checked={formData.type === "Sell"}
+                value="sell"
+                checked={formData.type === "sell"}
                 onChange={handleInputChange}
                 className="w-4"
               />
@@ -180,8 +185,8 @@ export default function CreateListing() {
                 type="radio"
                 name="type"
                 id="rent"
-                value="Rent"
-                checked={formData.type === "Rent"}
+                value="rent"
+                checked={formData.type === "rent"}
                 onChange={handleInputChange}
                 className="w-4"
               />
@@ -217,9 +222,9 @@ export default function CreateListing() {
           <div className="flex gap-x-2">
             <input
               type="checkbox"
-              name="offer"
-              id="offer"
-              checked={formData.offer}
+              name="isOffer"
+              id="isOffer"
+              checked={formData.isOffer}
               onChange={handleInputChange}
               className="w-4"
             />

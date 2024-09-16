@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/auth";
+const API_URL = `${import.meta.env.API_URL}/auth` 
 
 const fetchOptions = (formData) => {
   return {

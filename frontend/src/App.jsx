@@ -45,10 +45,10 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFoundPage />} />
-        <Route path="/create-listing" element={<CreateListing/>}/>
 
         {/* Protected Routes */}
         <Route element={<PrivateRoute />}>
+          <Route path="/create-listing" element={<CreateListing />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
 
