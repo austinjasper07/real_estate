@@ -14,9 +14,12 @@ import Login from "./pages/authPages/Login";
 import VerifyEmail from "./pages/authPages/VerifyEmail";
 import Profile from "./pages/userPages/Profile";
 import CreateListing from "./pages/propertyPages/CreateListing";
+import Listing from "./pages/propertyPages/Listing"
+import SingleListing from "./pages/propertyPages/singleListing"
 
 import { check_auth } from "./features/authSlice";
 import { PrivateRoute, Redirect } from "./components/RoutingUsers";
+
 
 export default function App() {
   const dispatch = useDispatch();
@@ -45,6 +48,8 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFoundPage />} />
+        <Route path="/listings" element={<Listing />}/>
+        <Route path="/listings/${id}" element={<SingleListing />}/>
 
         {/* Protected Routes */}
         <Route element={<PrivateRoute />}>

@@ -1,32 +1,36 @@
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { LoaderIcon, toast } from "react-hot-toast";
 import { getStorage, ref, deleteObject } from "firebase/storage";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useUploadFile } from "../../config/uploadFile";
 import { createListing, reset } from "../../features/listingSlice";
-
 
 export default function CreateListing() {
   const storage = getStorage(); // Get the Firebase storage instance
   const dispatch = useDispatch();
+  const { status, message, error, singleListing } = useSelector((state) => state.listing);
+  const navigate = useNavigate();
   const inputRef = useRef(null);
   const [files, setFiles] = useState([]);
+  const [localError, setLocalError] = useState("");
   const [imageUrls, setImageUrls] = useState([]);
   const [propertyData, setPropertyData] = useState({});
-  const { uploadFile, progress } = useUploadFile();
-  const [uploadDone, setUploadDone] = useState(false); 
+  const { uploadFile } = useUploadFile();
+  const [uploadDone, setUploadDone] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     address: "",
-    regularPrice: 0,
+    imageUrls: [],
+    regularPrice: 50,
     discountedPrice: 0,
-    bedroom: 0,
-    bathroom: 0,
+    bedroom: 1,
+    bathroom: 1,
     parking: false, // Initial state for checkboxes as boolean
     isOffer: false,
-    type: "", // Updated to handle radio button selection
+    type: "sell", // Updated to handle radio button selection
     furnished: false,
   });
 
@@ -57,9 +61,9 @@ export default function CreateListing() {
 
       // Optional: Show a success message
       toast.success("Image deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting image:", error);
-      toast.error("Failed to delete image");
+    } catch (localError) {
+      console.localError("Error deleting image:", localError);
+      toast.localError("Failed to delete image");
     }
   }
 
@@ -88,18 +92,28 @@ export default function CreateListing() {
       setUploadDone(true);
       setUploading(false);
       console.log("This is allUrl:", allUrl);
-    } catch (error) {
-      setUploading(false)
-      console.error(error.message);
-      toast.error(error.message);
+    } catch (localError) {
+      setUploading(false);
+      console.localError(localError.message);
+      toast.localError(localError.message);
     }
   }
 
   // Handle form submission
   function handleSubmit(e) {
     e.preventDefault();
-    dispatch(createListing(propertyData));
-    console.log("Updated propertyData:", propertyData);
+    try {
+      if (propertyData.imageUrls.length < 1)
+        throw new Error("You must upload at least one image to create listing");
+      if (propertyData.regularPrice < propertyData.discountedPrice)
+        throw new Error(
+          "Discounted price must be lower than than the regular pricce"
+        );
+      dispatch(createListing(propertyData));
+      console.log("Updated propertyData:", propertyData);
+    } catch (localError) {
+      setLocalError(localError.message);
+    }
   }
 
   // Update propertyData when imageUrls or formData changes
@@ -113,6 +127,43 @@ export default function CreateListing() {
     }
   }, [imageUrls, formData]);
 
+  useEffect(() => {
+    if (localError) {
+      setTimeout(() => {
+        setLocalError(null);
+      }, 5000);
+    }
+  }, [localError]);
+
+  useEffect(() => {
+    if (status === "succeeded") {
+      toast.success(message);
+      setTimeout(() => {
+        dispatch(reset());
+        setPropertyData({
+          name: "",
+          description: "",
+          address: "",
+          imageUrls: [],
+          regularPrice: 50,
+          discountedPrice: 0,
+          bedroom: 1,
+          bathroom: 1,
+          parking: false, // Initial state for checkboxes as boolean
+          isOffer: false,
+          type: "sell", // Updated to handle radio button selection
+          furnished: false,
+        });
+        setImageUrls([]);
+        navigate(`/listing/${singleListing._id}`)
+      }, 2000);
+    }
+
+    if (status === "failed") {
+      setLocalError(error)
+    }
+  }, [status])
+
   // Autofocus on the name input
   useEffect(() => {
     inputRef.current.focus();
@@ -121,7 +172,7 @@ export default function CreateListing() {
   return (
     <section className="min-h-screen mt-20 lg:-mt-9 max-w-4xl mx-auto py-4 px-6 sm:px-12 md:p-4">
       <h1 className="text-3xl font-bold text-slate-700 text-center mt-8 mb-10">
-        Create a Listing
+        Create Listing
       </h1>
 
       <form
@@ -136,7 +187,7 @@ export default function CreateListing() {
             name="name"
             maxLength={60}
             minLength={10}
-            required
+            required={true}
             className="border-0 px-3 py-2 placeholder-gray-400 text-gray-700 bg-white rounded-lg focus:outline-blue-500 w-full ease-linear transition-all duration-150"
             value={formData.name}
             onChange={handleInputChange}
@@ -146,7 +197,7 @@ export default function CreateListing() {
             rows="3"
             placeholder="Description"
             name="description"
-            required
+            required={true}
             className="border-0 px-3 py-2 placeholder-gray-400 text-gray-700 bg-white rounded-lg focus:outline-blue-500 w-full ease-linear transition-all duration-150"
             value={formData.description}
             onChange={handleInputChange}
@@ -155,7 +206,7 @@ export default function CreateListing() {
           <input
             type="text"
             name="address"
-            required
+            required={true}
             placeholder="Address"
             className="border-0 px-3 py-2 placeholder-gray-400 text-gray-700 bg-white rounded-lg focus:outline-blue-500 w-full ease-linear transition-all duration-150"
             value={formData.address}
@@ -169,6 +220,7 @@ export default function CreateListing() {
                 Type of Listing:
               </span>
               <input
+                required={true}
                 type="radio"
                 name="type"
                 id="sell"
@@ -177,11 +229,12 @@ export default function CreateListing() {
                 onChange={handleInputChange}
                 className="w-4"
               />
-              <span>Sell</span>
+              <label htmlFor="sell">Sell</label>
             </div>
 
             <div className="flex gap-2">
               <input
+                required={true}
                 type="radio"
                 name="type"
                 id="rent"
@@ -190,7 +243,7 @@ export default function CreateListing() {
                 onChange={handleInputChange}
                 className="w-4"
               />
-              <span>Rent</span>
+              <label htmlFor="rent">Rent</label>
             </div>
           </div>
 
@@ -204,7 +257,7 @@ export default function CreateListing() {
               onChange={handleInputChange}
               className="w-4"
             />
-            <span>Parking spot</span>
+            <label htmlFor="parking">Parking spot</label>
           </div>
 
           <div className="flex gap-x-2">
@@ -216,7 +269,7 @@ export default function CreateListing() {
               onChange={handleInputChange}
               className="w-4"
             />
-            <span>Furnished</span>
+            <label htmlFor="furnished">Furnished</label>
           </div>
 
           <div className="flex gap-x-2">
@@ -228,7 +281,7 @@ export default function CreateListing() {
               onChange={handleInputChange}
               className="w-4"
             />
-            <span>Offer</span>
+            <label htmlFor="isOffer">Offer</label>
           </div>
 
           {/* Bedroom and Bathroom fields */}
@@ -263,6 +316,9 @@ export default function CreateListing() {
             {/* Regular and Discounted price fields */}
             <div className="flex items-center gap-2">
               <input
+                min={50}
+                max={10000000}
+                required
                 type="number"
                 name="regularPrice"
                 id="regularPrice"
@@ -271,25 +327,39 @@ export default function CreateListing() {
                 onChange={handleInputChange}
               />
               <div className="flex flex-col items-center">
-                <p>Regular price</p>
-                <span className="text-xs">($ / month)</span>
+                <div className="flex gap-x-2">
+                  <p>Regular Price</p>
+                  {propertyData.type === "sell" && <span>($):</span>}
+                </div>
+                {propertyData.type === "rent" && (
+                  <span className="text-xs">($ / month)</span>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                name="discountedPrice"
-                id="discountedPrice"
-                value={formData.discountedPrice}
-                onChange={handleInputChange}
-                className="px-2 py-1 border border-gray-400 rounded-lg"
-              />
-              <div className="flex flex-col items-center">
-                <p>Discounted price</p>
-                <span className="text-xs">($ / month)</span>
+            {propertyData.isOffer && (
+              <div className="flex items-center gap-2">
+                <input
+                  min={50}
+                  max={10000000}
+                  type="number"
+                  name="discountedPrice"
+                  id="discountedPrice"
+                  value={formData.discountedPrice}
+                  onChange={handleInputChange}
+                  className="px-2 py-1 border border-gray-400 rounded-lg"
+                />
+                <div className="flex flex-col items-center">
+                  <div className="flex gap-x-2">
+                    <p>Discounted Price</p>
+                    {propertyData.type === "sell" && <span>($):</span>}
+                  </div>
+                  {propertyData.type === "rent" && (
+                    <span className="text-xs">($ / month)</span>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -318,18 +388,26 @@ export default function CreateListing() {
               className="p-3 bg-green-700 text-white border border-green-700 rounded-md uppercase transition-all duration-300 
               hover:opacity-80 w-20 disabled:opacity-30"
             >
-              {
-                uploading ? <LoaderIcon className="animate-spin mx-auto size-6 text-white"/> : "Upload"
-              }
-              
+              {uploading ? (
+                <LoaderIcon className="animate-spin mx-auto size-6 text-white" />
+              ) : (
+                "Upload"
+              )}
             </button>
           </div>
 
           {/* Display uploaded images with delete option */}
           {uploadDone &&
             propertyData.imageUrls?.map((imageUrl, index) => (
-              <div key={index} className="flex justify-between p-3 border items-center">
-                <img src={imageUrl} alt="property-image" className="h-20 w-20 object-contain rounded-lg" />
+              <div
+                key={index}
+                className="flex justify-between p-3 border items-center"
+              >
+                <img
+                  src={imageUrl}
+                  alt="property-image"
+                  className="h-20 w-20 object-contain rounded-lg"
+                />
                 <button
                   onClick={() => handleDelete(imageUrl)}
                   type="button"
@@ -344,8 +422,13 @@ export default function CreateListing() {
             type="submit"
             className="p-3 bg-slate-700 text-white rounded-lg hover:opacity-95 disabled:opacity-80 uppercase font-medium mt-4"
           >
-            Create listing
+            {status === "loading" ? (
+              <LoaderIcon className="animate-spin mx-auto size-6" />
+            ) : (
+              " Create listing"
+            )}
           </button>
+          {localError && <p className="text-sm text-red-600">{localError}</p>}
         </div>
       </form>
     </section>

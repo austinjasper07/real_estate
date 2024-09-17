@@ -2,13 +2,13 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
-const API_URL = `${import.meta.env.API_URL}/listing`;
+const API_URL = "http://localhost:3000/api/listing";
 
 export const createListing = createAsyncThunk(
   "listing/createLisiting",
   async (formData) => {
     try {
-      const response = await axios.post("http://localhost:3000/api/listing/create", formData);
+      const response = await axios.post(`${API_URL}/create`, formData);
       return response.data;
     } catch (error) {
       throw new Error(error);
