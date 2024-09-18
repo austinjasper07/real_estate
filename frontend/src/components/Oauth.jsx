@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { OAuth, reset } from "../features/authSlice.js";
 
 export function GoogleAuth() {
-  // const [userData, setUserData] = useState({});
   const navigate = useNavigate();
   const { status, error, message, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -24,7 +23,7 @@ export function GoogleAuth() {
       }
     }
     if (status === "failed") {
-      console.log(error);
+      toast.error(error);
       dispatch(reset());
     }
 
@@ -48,12 +47,10 @@ export function GoogleAuth() {
         isVerified: user.emailVerified,
         imageUrl: user.photoURL,
       };
-      console.log(user.imageUrl)
 
       dispatch(OAuth(userData));
     } catch (error) {
-      // toast.error(error)
-      console.log(error)
+      toast.error(error)
     }
   }
 

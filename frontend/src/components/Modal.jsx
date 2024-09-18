@@ -1,15 +1,27 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import Login from "../pages/authPages/Login"
 import SignUp from "../pages/authPages/SignUp";
 import { IoIosClose } from "react-icons/io";
 import { motion, AnimatePresence } from 'framer-motion'
-import { hideModal } from "../features/authSlice";
+import { hideModal, showModal } from "../features/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function Modal() {
+export default function Modal({isShowModal}) {
   const [activeTab, setActiveTab] = useState("sign-in");
+  // const location = useLocation();
   const dispatch = useDispatch();
-  const {modal} = useSelector((state)=> state.auth)
+  const { modal } = useSelector((state) => state.auth)
+  
+  if (isShowModal) {
+    dispatch(showModal())
+  }
+
+  // if (location.pathname === "/login") {
+  //   setActiveTab("sign-in")
+  // } else if (location.pathname === "/sign_up") {
+  //   setActiveTab("new-account")
+  // }
 
   return (
     <AnimatePresence>
@@ -18,7 +30,7 @@ export default function Modal() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ${
+          className={`min-h-screen fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ${
             modal ? "block" : "hidden"
           }`}
         >

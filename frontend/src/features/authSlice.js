@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = `${import.meta.env.API_URL}/auth` 
+const API_URL = `http://localhost:3000/api/auth` 
 
 const fetchOptions = (formData) => {
   return {
@@ -37,7 +37,6 @@ export const login = createAsyncThunk("auth/login", async (formData) => {
     if (!result.success) {
       throw new Error(result.message);
     }
-    console.log('Success:', result);
     return result
   }
   catch (error) {
@@ -49,13 +48,12 @@ export const OAuth = createAsyncThunk("auth/OAuth", async (formData) => {
     const response = await fetch(`${API_URL}/OAuth`, fetchOptions(formData));
     const result = await response.json();
     if (!result.success) {
-      throw new Error(result.message);
+      throw new Error(result);
     }
-    console.log('Success:', result);
     return result
   }
   catch (error) {
-    throw new Error(error.message);
+    throw new Error(error);
   }
 });
 
@@ -70,7 +68,6 @@ export const logout = createAsyncThunk("auth/logout", async () => {
     return response.data
     
   } catch (error) {
-    console.error('Logout failed: ', error);
     throw error;
   }
 });

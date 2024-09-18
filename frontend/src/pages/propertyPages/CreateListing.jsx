@@ -48,10 +48,10 @@ export default function CreateListing() {
   // Function to handle image deletion
   async function handleDelete(imageUrl) {
     try {
-      const imageRef = ref(storage, imageUrl); // Create reference with full folder path
+      // const imageRef = ref(storage, imageUrl); // Create reference with full folder path
 
-      // Delete the file from Firebase Storage
-      await deleteObject(imageRef);
+      // // Delete the file from Firebase Storage
+      // await deleteObject(imageRef);
 
       // Remove the image from the state after successful deletion
       setPropertyData((prevData) => ({

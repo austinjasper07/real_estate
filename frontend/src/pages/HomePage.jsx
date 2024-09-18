@@ -1,9 +1,19 @@
 import React from 'react'
-
+import {useNavigate} from "react-router-dom"
+import { useDispatch } from 'react-redux';
+import { user_listings } from '../features/userSlice';
 export default function HomePage() {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const onClick = () => {
+    dispatch(user_listings())
+    navigate("/my-listings")
+  }
   return (
     <main className="min-h-screen mt-20 lg:mt-0">
       <div className="px-10 py-5 text-justify text-pretty">
+        
+        <button onClick={onClick} className='border border-gray-700 rounded-lg'>Click me to show listings</button>
         <h2>What is Lorem Ipsum?</h2>
         Lorem Ipsum is simply dummy text of the printing and typesetting
         industry. Lorem Ipsum has been the industry's standard dummy text ever
