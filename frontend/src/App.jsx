@@ -16,10 +16,12 @@ import Profile from "./pages/userPages/Profile";
 import CreateListing from "./pages/propertyPages/CreateListing";
 import Modal from "./components/Modal";
 import UserListings from "./pages/userPages/UserListings";
+import EditListing from "./pages/userPages/EditListing";
 
 import { check_auth, showModal } from "./features/authSlice";
 import { PrivateRoute, Redirect } from "./components/RoutingUsers";
 import { user_listings } from "./features/userSlice";
+
 
 export default function App() {
   const dispatch = useDispatch();
@@ -67,6 +69,7 @@ export default function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/my-listings" element={<UserListings />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/edit_listing/:id" element={<EditListing />} />
         </Route>
 
         {/* Redirecting Authenticated users */}

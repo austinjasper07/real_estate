@@ -14,17 +14,19 @@ export const user_listings = createAsyncThunk('user/user_listings', async () => 
     }
 })
 
-export const delete_listing = createAsyncThunk("user/delete_listing", async () => {
+export const delete_listing = createAsyncThunk("user/delete_listing", async (property_id) => {
     try {
-        const response = await axios.get(`${API_URL}/delete_listing`);
+        console.log("The delete_listing has been called in the slice")
+        const response = await axios.post(`${API_URL}/delete_listing`, property_id);
+        console.log("I went")
         return response.data
     } catch (error) {
         throw new Error(error.message);
     }
 })
-export const edit_listing = createAsyncThunk("user/edit_listing", async () => {
+export const edit_listing = createAsyncThunk("user/edit_listing", async (formData) => {
     try {
-        const response = await axios.get(`${API_URL}/edit_listing`);
+        const response = await axios.post(`${API_URL}/edit_listing`, formData);
         return response.data
     } catch (error) {
         throw new Error(error.message);

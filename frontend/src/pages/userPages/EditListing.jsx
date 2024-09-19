@@ -1,44 +1,45 @@
 import { useRef, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation,  } from "react-router-dom";
 import { LoaderIcon, toast } from "react-hot-toast";
 import { getStorage, ref, deleteObject } from "firebase/storage";
 import { useDispatch, useSelector } from "react-redux";
 import { useUploadFile } from "../../config/uploadFile";
-import { createListing, reset } from "../../features/listingSlice";
+import { edit_listing, reset } from "../../features/userSlice";
 
-export default function CreateListing() {
+export default function EditListing() {
   const storage = getStorage(); // Get the Firebase storage instance
   const dispatch = useDispatch();
   const { status, message, error, singleListing } = useSelector((state) => state.listing);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { property } = location.state; //The property passed from the listing page through useLocation
   const inputRef = useRef(null);
   const [files, setFiles] = useState([]);
   const [localError, setLocalError] = useState("");
-  const [imageUrls, setImageUrls] = useState([]);
+  const [imageUrls, setImageUrls] = useState(property.imageUrls);
   const [propertyData, setPropertyData] = useState({});
   const { uploadFile } = useUploadFile();
-  const [uploadDone, setUploadDone] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    address: "",
-    imageUrls: [],
-    regularPrice: 50,
-    discountedPrice: 0,
-    bedroom: 1,
-    bathroom: 1,
-    parking: false, // Initial state for checkboxes as boolean
-    isOffer: false,
-    type: "sell", // Updated to handle radio button selection
-    furnished: false,
+    _id: property._id,
+    name: property.name,
+    description: property.description,
+    address: property.address,
+    imageUrls: imageUrls,
+    regularPrice: property.regularPrice,
+    discountedPrice: property.discountedPrice,
+    bedroom: property.bedroom,
+    bathroom: property.bathroom,
+    parking: property.parking,
+    isOffer: property.isOffer,
+    type: property.type,
+    furnished: property.furnished,
   });
 
+  console.log(property)
   // Handle form input changes
   function handleInputChange(e) {
     const { name, type, value, checked } = e.target;
-
-    // Handle checkboxes separately
     setFormData((prevData) => ({
       ...prevData,
       [name]: type === "checkbox" ? checked : value,
@@ -77,10 +78,8 @@ export default function CreateListing() {
       if (files.length + imageUrls.length > 6) {
         throw new Error("You can only upload a maximum of 6 images.");
       }
-
       setUploading(true);
       const allUrl = [];
-
       await Promise.all(
         files.map(async (file) => {
           const url = await uploadFile("properties", file);
@@ -89,12 +88,10 @@ export default function CreateListing() {
       );
       // Update imageUrls state
       setImageUrls((prevValue) => [...prevValue, ...allUrl]);
-      setUploadDone(true);
       setUploading(false);
       console.log("This is allUrl:", allUrl);
     } catch (localError) {
       setUploading(false);
-      console.localError(localError.message);
       toast.localError(localError.message);
     }
   }
@@ -109,8 +106,7 @@ export default function CreateListing() {
         throw new Error(
           "Discounted price must be lower than than the regular pricce"
         );
-      dispatch(createListing(propertyData));
-      console.log("Updated propertyData:", propertyData);
+      dispatch(edit_listing(propertyData));
     } catch (localError) {
       setLocalError(localError.message);
     }
@@ -160,9 +156,9 @@ export default function CreateListing() {
     }
 
     if (status === "failed") {
-      setLocalError(error)
+      setLocalError(error);
     }
-  }, [status])
+  }, [status]);
 
   // Autofocus on the name input
   useEffect(() => {
@@ -397,37 +393,44 @@ export default function CreateListing() {
           </div>
 
           {/* Display uploaded images with delete option */}
-          {uploadDone &&
-            propertyData.imageUrls?.map((imageUrl, index) => (
-              <div
-                key={index}
-                className="flex justify-between p-3 border items-center"
+          {imageUrls?.map((imageUrl, index) => (
+            <div
+              key={index}
+              className="flex justify-between p-3 border items-center"
+            >
+              <img
+                src={imageUrl}
+                alt="property-image"
+                className="h-20 w-20 object-contain rounded-lg"
+              />
+              <button
+                onClick={() => handleDelete(imageUrl)}
+                type="button"
+                className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75 shadow-sm shadow-zinc-300"
               >
-                <img
-                  src={imageUrl}
-                  alt="property-image"
-                  className="h-20 w-20 object-contain rounded-lg"
-                />
-                <button
-                  onClick={() => handleDelete(imageUrl)}
-                  type="button"
-                  className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75 shadow-sm shadow-zinc-300"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
+                Delete
+              </button>
+            </div>
+          ))}
 
-          <button
-            type="submit"
-            className="p-3 bg-slate-700 text-white rounded-lg hover:opacity-95 disabled:opacity-80 uppercase font-medium mt-4"
-          >
-            {status === "loading" ? (
-              <LoaderIcon className="animate-spin mx-auto size-6" />
-            ) : (
-              " Create listing"
-            )}
-          </button>
+          <div className="flex mx-auto gap-x-4">
+            <button
+              onClick={() => navigate("/my-listings", { replace: true })}
+              className="p-3 bg-red-600 text-white rounded-lg hover:opacity-95 disabled:opacity-80 uppercase font-medium mt-4"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="p-3 bg-slate-700 text-white rounded-lg hover:opacity-95 disabled:opacity-80 uppercase font-medium mt-4"
+            >
+              {status === "loading" ? (
+                <LoaderIcon className="animate-spin mx-auto size-6" />
+              ) : (
+                " Edit listing"
+              )}
+            </button>
+          </div>
           {localError && <p className="text-sm text-red-600">{localError}</p>}
         </div>
       </form>

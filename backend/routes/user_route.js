@@ -8,7 +8,6 @@ const router = express.Router();
 // const ObjectId = new mongoose.Types.ObjectId;
 
 router.post("/update", verifyToken, async (req, res) => {
-    console.log("Request Body:", req.body); // Check the incoming data
     const { firstname, lastname, imageUrl, phone, aboutMe, address, zipCode, country, city } = req.body;
     try {
         const user = await User.findOneAndUpdate(
@@ -35,7 +34,30 @@ router.get("/user_listings", verifyToken, async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Error fetching user listings" });
     }
+})
 
+router.post("/edit_listing", verifyToken, async (req, res) => {
+    try {
+        const listing = await Listing.findOneAndUpdate(
+            { _id: req.body._id },
+            { $set: { ...req.body } },
+            { new: true, runValidators: true, useFindAndModify: false }
+        );
+        console.log(listing)
+        res.status(202).json({ success: true, message: "Update was successful" });
+    } catch (error) {
+        res.status(500).json({ message: "Error modifying listings" });
+    }
+});
+
+router.post("/delete_listing", verifyToken, async (req, res) => {
+    try {
+        console.log("the delete call came", req.body)
+        await Listing.findByIdAndDelete({ _id: req.body.id });
+        res.status(202).json({ success: true, message: "Listing deleted successful" });
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting listings" });
+    }
 })
 
 
