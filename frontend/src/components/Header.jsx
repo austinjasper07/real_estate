@@ -10,7 +10,6 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { modal, user, isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  console.log(user)
 
   // Drop Down Handlers (Start)
   const [isOpen, setIsOpen] = useState(false);
